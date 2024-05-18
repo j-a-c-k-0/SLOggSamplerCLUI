@@ -71,9 +71,12 @@ static uint32_t crc_lookup[256] = {
 
 int main(int argc, char **argv) {
 
-	printf("SL Ogg Sampler CLUI\nIMPORTANT: USE ONLY ON OGG FILES WITH THE FOLLOWING SETTINGS:\n44.1 kHz, 32-bit, mono, max 59.949 sec\nConverting the file in place...\nReading sample rate...\n");
+	printf("enter your file name : ");
 
-	FILE *infile = fopen(argv[1], "r+b");
+	char filename[256];
+
+	scanf("%s",&filename);
+        FILE *infile = fopen(filename,"r+b");
 
 	fseek(infile, 39, SEEK_SET);
 
@@ -87,13 +90,16 @@ int main(int argc, char **argv) {
 		sample2 & 0xFF,
 		sample1 & 0xFF);
 
-	if ((channels & 0xFF) != 0x01) {
-		printf("Invalid channels, you must save as mono.\n");
+	if ((channels & 0xFF) != 0x01) 
+	{
+	printf("Invalid channels, you must save as mono.\n");
 	}
-	else if ((sample3 & 0xFF) != 0x00 || (sample2 & 0xFF) != 0xAC || (sample1 & 0xFF) != 0x44) {
-		printf("Invalid sample rate detected, you must save as 44.1 kHz (44100 Hz).\n");
+	else if ((sample3 & 0xFF) != 0x00 || (sample2 & 0xFF) != 0xAC || (sample1 & 0xFF) != 0x44) 
+	{
+	printf("Invalid sample rate detected, you must save as 44.1 kHz (44100 Hz).\n");
 	}
-	else {
+	else 
+	{
 		printf("Writing sample rate...\n");
 
 		sample1 = 0x20;
@@ -113,17 +119,18 @@ int main(int argc, char **argv) {
 
 		fclose(infile);
 
-		FILE *outfile = fopen(argv[1], "r+b");
+		FILE *outfile = fopen(filename, "r+b");
 
 		uint32_t checksum = 0;
 		int b;
 		int e = 0;
 		int c = 0;
-		while (((b = fgetc(outfile)) != EOF) && (c<58)) {
-			if ((c < 22) || (c > 25)) {
+		while (((b = fgetc(outfile)) != EOF) && (c<58)) 
+		{
+			if ((c < 22) || (c > 25)) 
+			{
 				checksum = (checksum << 8) ^ crc_lookup[((checksum >> 24) & 0xff) ^ ((unsigned char)b)];
-			}
-			else {
+			}else{
 				checksum = (checksum << 8) ^ crc_lookup[((checksum >> 24) & 0xff) ^ ((unsigned char)e)];
 			}
 			c = c + 1;
@@ -150,7 +157,6 @@ int main(int argc, char **argv) {
 
 		fclose(outfile);
 	}
-
-	printf("Done. Press ENTER\n");
+	printf("Done.\n");
 	getchar();
 }
